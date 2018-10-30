@@ -10,7 +10,7 @@
 sys/time.h
 -
 
-/home/advancedhpc/linh/advancedhpc2018/labwork/src/timer.cpp
+/home/linhdown/advancedhpc2018/labwork/src/timer.cpp
 include/timer.h
 -
 stdlib.h

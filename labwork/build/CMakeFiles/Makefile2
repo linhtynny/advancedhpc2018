@@ -54,10 +54,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/advancedhpc/linh/advancedhpc2018/labwork
+CMAKE_SOURCE_DIR = /home/linhdown/advancedhpc2018/labwork
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/advancedhpc/linh/advancedhpc2018/labwork/build
+CMAKE_BINARY_DIR = /home/linhdown/advancedhpc2018/labwork/build
 
 #=============================================================================
 # Target rules for target CMakeFiles/labwork.dir
@@ -66,7 +66,7 @@ CMAKE_BINARY_DIR = /home/advancedhpc/linh/advancedhpc2018/labwork/build
 CMakeFiles/labwork.dir/all:
 	$(MAKE) -f CMakeFiles/labwork.dir/build.make CMakeFiles/labwork.dir/depend
 	$(MAKE) -f CMakeFiles/labwork.dir/build.make CMakeFiles/labwork.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/advancedhpc/linh/advancedhpc2018/labwork/build/CMakeFiles --progress-num=1,2,3,4 "Built target labwork"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/linhdown/advancedhpc2018/labwork/build/CMakeFiles --progress-num=1,2,3,4 "Built target labwork"
 .PHONY : CMakeFiles/labwork.dir/all
 
 # Include target in all.
@@ -76,9 +76,9 @@ all: CMakeFiles/labwork.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/labwork.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/advancedhpc/linh/advancedhpc2018/labwork/build/CMakeFiles 4
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/linhdown/advancedhpc2018/labwork/build/CMakeFiles 4
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/labwork.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/advancedhpc/linh/advancedhpc2018/labwork/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/linhdown/advancedhpc2018/labwork/build/CMakeFiles 0
 .PHONY : CMakeFiles/labwork.dir/rule
 
 # Convenience name for target.

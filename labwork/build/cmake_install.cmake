@@ -1,4 +1,4 @@
-# Install script for directory: /home/advancedhpc/linh/advancedhpc2018/labwork
+# Install script for directory: /home/linhdown/advancedhpc2018/labwork
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -40,5 +40,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/advancedhpc/linh/advancedhpc2018/labwork/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/linhdown/advancedhpc2018/labwork/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

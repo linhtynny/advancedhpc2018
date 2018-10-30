@@ -6,5 +6,5 @@ CXX_FLAGS =  -fopenmp   -std=gnu++11
 
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/home/advancedhpc/linh/advancedhpc2018/labwork/. -I/usr/local/cuda/include 
+CXX_INCLUDES = -I/home/linhdown/advancedhpc2018/labwork/. -I/usr/local/cuda/include 
 

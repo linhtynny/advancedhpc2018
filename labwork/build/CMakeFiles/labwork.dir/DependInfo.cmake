@@ -4,7 +4,7 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/advancedhpc/linh/advancedhpc2018/labwork/src/timer.cpp" "/home/advancedhpc/linh/advancedhpc2018/labwork/build/CMakeFiles/labwork.dir/src/timer.cpp.o"
+  "/home/linhdown/advancedhpc2018/labwork/src/timer.cpp" "/home/linhdown/advancedhpc2018/labwork/build/CMakeFiles/labwork.dir/src/timer.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 

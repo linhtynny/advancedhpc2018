@@ -56,18 +56,18 @@ endif()
 
 # Set these up as variables to make reading the generated file easier
 set(CMAKE_COMMAND "/usr/bin/cmake") # path
-set(source_file "/home/advancedhpc/linh/advancedhpc2018/labwork/src/labwork.cu") # path
-set(NVCC_generated_dependency_file "/home/advancedhpc/linh/advancedhpc2018/labwork/build/CMakeFiles/labwork.dir/src/labwork_generated_labwork.cu.o.NVCC-depend") # path
-set(cmake_dependency_file "/home/advancedhpc/linh/advancedhpc2018/labwork/build/CMakeFiles/labwork.dir/src/labwork_generated_labwork.cu.o.depend") # path
+set(source_file "/home/linhdown/advancedhpc2018/labwork/src/labwork.cu") # path
+set(NVCC_generated_dependency_file "/home/linhdown/advancedhpc2018/labwork/build/CMakeFiles/labwork.dir/src/labwork_generated_labwork.cu.o.NVCC-depend") # path
+set(cmake_dependency_file "/home/linhdown/advancedhpc2018/labwork/build/CMakeFiles/labwork.dir/src/labwork_generated_labwork.cu.o.depend") # path
 set(CUDA_make2cmake "/usr/share/cmake-3.7/Modules/FindCUDA/make2cmake.cmake") # path
 set(CUDA_parse_cubin "/usr/share/cmake-3.7/Modules/FindCUDA/parse_cubin.cmake") # path
 set(build_cubin OFF) # bool
 set(CUDA_HOST_COMPILER "/usr/bin/cc") # path
 # We won't actually use these variables for now, but we need to set this, in
 # order to force this file to be run again if it changes.
-set(generated_file_path "/home/advancedhpc/linh/advancedhpc2018/labwork/build/CMakeFiles/labwork.dir/src/.") # path
-set(generated_file_internal "/home/advancedhpc/linh/advancedhpc2018/labwork/build/CMakeFiles/labwork.dir/src/./labwork_generated_labwork.cu.o") # path
-set(generated_cubin_file_internal "/home/advancedhpc/linh/advancedhpc2018/labwork/build/CMakeFiles/labwork.dir/src/./labwork_generated_labwork.cu.o.cubin.txt") # path
+set(generated_file_path "/home/linhdown/advancedhpc2018/labwork/build/CMakeFiles/labwork.dir/src/.") # path
+set(generated_file_internal "/home/linhdown/advancedhpc2018/labwork/build/CMakeFiles/labwork.dir/src/./labwork_generated_labwork.cu.o") # path
+set(generated_cubin_file_internal "/home/linhdown/advancedhpc2018/labwork/build/CMakeFiles/labwork.dir/src/./labwork_generated_labwork.cu.o.cubin.txt") # path
 
 set(CUDA_NVCC_EXECUTABLE "/usr/local/cuda/bin/nvcc") # path
 set(CUDA_NVCC_FLAGS -std=c++11;-O3;-Wno-deprecated-gpu-targets ;; ) # list
@@ -77,7 +77,7 @@ set(CUDA_NVCC_FLAGS_MINSIZEREL  ; )
 set(CUDA_NVCC_FLAGS_RELEASE  ; )
 set(CUDA_NVCC_FLAGS_RELWITHDEBINFO  ; )
 set(nvcc_flags -m64) # list
-set(CUDA_NVCC_INCLUDE_DIRS "/usr/local/cuda/include;/home/advancedhpc/linh/advancedhpc2018/labwork/.;/usr/include;/usr/local/cuda/include") # list (needs to be in quotes to handle spaces properly).
+set(CUDA_NVCC_INCLUDE_DIRS "/usr/local/cuda/include;/home/linhdown/advancedhpc2018/labwork/.;/usr/include;/usr/local/cuda/include") # list (needs to be in quotes to handle spaces properly).
 set(CUDA_NVCC_COMPILE_DEFINITIONS "") # list (needs to be in quotes to handle spaces properly).
 set(format_flag "-c") # string
 set(cuda_language_flag ) # list
