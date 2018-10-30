@@ -1,0 +1,59 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{listings}
+\usepackage{graphicx}
+\usepackage{epstopdf}
+\usepackage{verbatim}
+\usepackage[english]{babel}
+
+\title{Report.1.OpenMP}
+\author{Linh Duong}
+\date{October 2018}
+
+\lstset{breaklines=true} 
+\begin{document}
+\maketitle
+\section{Implementation}
+The conversion from sequential CPU code parallel using OpenMP is implemented with an OpenMP directive:
+\begin{verbatim}
+#pragma omp parallel for
+\end{verbatim}
+
+By using parallel computing, the program's duration is reduce to only a quater of sequential computing.\\
+The detail of the configurations and their output are as below
+Thanks to parallel computing, the program's duration is 4 times faster than sequetial one. This is the speed up. Besides, OpenMP also support static and dynamic schedules with the directives:
+\begin{verbatim}
+#pragma omp parallel for schedule (static)
+#pragma omp parallel for schedule (dynamic)
+\end{verbatim}
+
+\section{Result}
+\subsection{Speedup}
+\begin{verbatim}
+USTH ICT Master 2018, Advanced Programming for HPC.
+Warming up...
+Starting labwork 1
+labwork 1 CPU ellapsed 3676.6ms
+labwork 1 ellapsed 866.3ms
+\end{verbatim}
+
+\subsection{Static}
+\begin{verbatim}
+USTH ICT Master 2018, Advanced Programming for HPC.
+Warming up...
+Starting labwork 1
+labwork 1 CPU ellapsed 3679.9ms
+labwork 1 ellapsed 901.9ms
+
+\end{verbatim}
+
+\subsection{Dynamic}
+\begin{verbatim}
+USTH ICT Master 2018, Advanced Programming for HPC.
+Warming up...
+Starting labwork 1
+labwork 1 CPU ellapsed 3742.0ms
+labwork 1 ellapsed 851.2ms
+
+\end{verbatim}
+\end{document}
