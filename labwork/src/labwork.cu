@@ -158,13 +158,15 @@ void Labwork::labwork2_GPU() {
 		printf(" - Memory clock rate: %d \n", prop.memoryClockRate);
 		printf(" - Memory bus width: %d \n", prop.memoryBusWidth);
 	}
+
 }
 
 __global__ void grayscale(uchar3 *input, uchar3 *output) {
 	int tid = threadIdx.x + blockIdx.x * blockDim.x;
-	output[tid].x = (input[tid].x + input[tid].y +
-	input[tid].z) / 3;
-	output[tid].z = output[tid].y = output[tid].x;
+	output[tid].x = (input[tid].x + input[tid].y + input[tid].z) / 3;
+	output[tid].y = (input[tid].x + input[tid].y + input[tid].z) / 3;
+	output[tid].z = (input[tid].x + input[tid].y + input[tid].z) / 3;
+	//output[tid].z = output[tid].y = output[tid].x;
 }
 
 void Labwork::labwork3_GPU() {
