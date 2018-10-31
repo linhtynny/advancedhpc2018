@@ -151,15 +151,37 @@ void Labwork::labwork2_GPU() {
 		cudaGetDeviceProperties(&prop, i);
 		printf("GPU #%d \n" , i);
 		printf(" - GPU name: %s \n", prop.name);
+		printf(" - Clock rate: %d \n", prop.clockRate);
 		printf(" - Number of cores: %d \n", getSPcores(prop));
-		printf(" -  rate: %d \n", prop.clockRate);
 		printf(" - Number of multiprocessors: %d \n", prop.multiProcessorCount);
 		printf(" - Warp size: %d \n", prop.warpSize);
+		printf(" - Memory clock rate: %d \n", prop.memoryClockRate);
+		printf(" - Memory bus width: %d \n", prop.memoryBusWidth);
 	}
 }
 
+__global__ void grayscale(uchar3 *input, uchar3 *output) {
+	int tid = threadIdx.x + blockIdx.x * blockDim.x;
+	output[tid].x = (input[tid].x + input[tid].y +
+	input[tid].z) / 3;
+	output[tid].z = output[tid].y = output[tid].x;
+}
+
 void Labwork::labwork3_GPU() {
-   
+	
+	int pixelCount = inputImage->width * inputImage->height;	
+	int blockSize = 64;
+	int numBlock = pixelCount / blockSize;
+	uchar3 *devInput,*devOutput;
+	outputImage = static_cast<char *>(malloc(pixelCount * 3));
+	cudaMalloc(&devInput, pixelCount * 3);
+	cudaMalloc(&devOutput, pixelCount * 3);
+	cudaMemcpy(devInput, inputImage->buffer, pixelCount*3, cudaMemcpyHostToDevice);
+	grayscale<<<numBlock, blockSize>>>(devInput, devOutput);
+	cudaMemcpy(outputImage, devOutput, pixelCount*3, cudaMemcpyDeviceToHost);
+	cudaFree(devInput);
+	cudaFree(devOutput);
+
 }
 
 void Labwork::labwork4_GPU() {
