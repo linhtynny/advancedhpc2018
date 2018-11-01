@@ -1,0 +1,55 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{listings}
+\usepackage{graphicx}
+\usepackage{epstopdf}
+\usepackage{verbatim}
+\usepackage[english]{babel}
+
+\title{Report.3.Cuda}
+\author{Linh Duong}
+\date{October 2018}
+
+\lstset{breaklines=true} 
+\begin{document}
+\maketitle
+
+\section{Implementation}
+In this labwork, the code for labwork 1 is re-implemented using CUDA. The flow of the program contains 4 main parts:
+
+\begin{enumerate}
+    \item Host feeds device with data
+    \begin{verbatim}
+cudaMalloc(&devInput, pixelCount * 3);
+	cudaMalloc(&devOutput, pixelCount * 3);
+	cudaMemcpy(devInput, inputImage->buffer, pixelCount*3, cudaMemcpyHostToDevice);
+    \end{verbatim}
+    \item Host asks device to process data
+    \begin{verbatim}
+grayscale<<<numBlock, blockSize>>>(devInput, devOutput);
+    \end{verbatim}
+    \item Device processes data in parallel
+    \begin{verbatim}
+__global__ void grayscale(uchar3 *input, uchar3 *output) {
+    	int tid = threadIdx.x + blockIdx.x * blockDim.x;
+    	unsigned char g = (input[tid].x + input[tid].y + input[tid].z) / 3;
+    	output[tid].z = output[tid].y = output[tid].x = g;
+}
+    \end{verbatim}
+    \item Device returns result
+    \begin{verbatim}
+cudaMemcpy(outputImage, devOutput, pixelCount*3, cudaMemcpyDeviceToHost);
+	cudaFree(devInput);
+	cudaFree(devOutput);
+    \end{verbatim}
+\end{enumerate}
+
+\section{Result}
+\begin{verbatim}
+    USTH ICT Master 2018, Advanced Programming for HPC.
+    Warming up...
+    Starting labwork 3
+    labwork 3 ellapsed 100.8ms
+\end{verbatim}
+The program's duration is about 30 times faster than sequential programming.
+\end{document}

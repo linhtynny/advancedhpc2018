@@ -185,7 +185,20 @@ void Labwork::labwork3_GPU() {
 }
 
 void Labwork::labwork4_GPU() {
-   
+	int pixelCount = inputImage->width * inputImage->height;	
+	//int blockSize = 1024;
+	dim3 blockSize = dim3(32, 32);
+	//int numBlock = pixelCount / blockSize;
+	dim3 gridSize = dim3((pixelCount / 1024)/2, 2);
+	uchar3 *devInput,*devOutput;
+	outputImage = static_cast<char *>(malloc(pixelCount * 3));
+	cudaMalloc(&devInput, pixelCount * 3);
+	cudaMalloc(&devOutput, pixelCount * 3);
+	cudaMemcpy(devInput, inputImage->buffer, pixelCount*3, cudaMemcpyHostToDevice);
+	grayscale<<<gridSize, blockSize>>>(devInput, devOutput);
+	cudaMemcpy(outputImage, devOutput, pixelCount*3, cudaMemcpyDeviceToHost);
+	cudaFree(devInput);
+	cudaFree(devOutput);
 }
 
 // CPU implementation of Gaussian Blur
