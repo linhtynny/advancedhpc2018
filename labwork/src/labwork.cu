@@ -189,7 +189,8 @@ void Labwork::labwork4_GPU() {
 	//int blockSize = 1024;
 	dim3 blockSize = dim3(32, 32);
 	//int numBlock = pixelCount / blockSize;
-	dim3 gridSize = dim3((pixelCount / 1024)/2, 2);
+	//dim3 gridSize = dim3((pixelCount / (blockSize.x*blockSize.y))/2, 2);
+	dim3 gridSize = dim3(inputImage->width / blockSize.x, inputImage->height / blockSize.y);
 	uchar3 *devInput,*devOutput;
 	outputImage = static_cast<char *>(malloc(pixelCount * 3));
 	cudaMalloc(&devInput, pixelCount * 3);
