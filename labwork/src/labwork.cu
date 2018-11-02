@@ -342,8 +342,13 @@ __global__ void sharedblur(uchar3* input, uchar3* output, int* kernel, int width
 	 0, 0, 1, 2, 1, 0, 0 };
 	*/
 	__shared__ int sharedkernel[49];
-	for (int i=0; i<49; i++){
+	/*for (int i=0; i<49; i++){
 		sharedkernel[i] = kernel[i];
+	} //copy >1000 times => slow
+	*/
+	int localtid = threadIdx.x + threadIdx.y*blockDim.x;
+	if (localtid < 49){
+		sharedkernel[localtid] = kernel[localtid];
 	}
 	__syncthreads();
 	int sum = 0;
