@@ -1,0 +1,50 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{listings}
+\usepackage{graphicx}
+\usepackage{epstopdf}
+\usepackage{verbatim}
+\usepackage[english]{babel}
+
+\title{Report.4.Threads}
+\author{Linh Duong}
+\date{October 2018}
+
+\lstset{breaklines=true} 
+\begin{document}
+\maketitle
+
+\section{Implementation}
+In this labwork, the code for labwork 3 is re-implemented using 2D blocks. The modified parts are:
+
+\begin{itemize}
+    \item The kernel
+    \begin{verbatim}
+__global__ void grayscale2d(uchar3* input, uchar3* output, int width) {
+    int tidx = threadIdx.x + blockIdx.x * blockDim.x;
+    int tidy = threadIdx.y + blockIdx.y * blockDim.y;
+    int tid = tidx + tidy * width; //gridDim.x*blockDim.x != width
+    output[tid].x = (input[tid].x + input[tid].y + input[tid].z) / 3;
+    output[tid].z = output[tid].y = output[tid].x;
+}
+    \end{verbatim}
+    \item BlockSize and GridSize
+    \begin{verbatim}
+dim3 blockSize = dim3(32, 32);
+dim3 gridSize = dim3(inputImage->width / blockSize.x,
+                inputImage->height / blockSize.y);
+    \end{verbatim}
+\end{itemize}
+
+\section{Result}
+The results with different 2D block size values:
+\begin{table}[h]
+\centering
+\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|}
+\hline
+Block size &32x32 &64x16 &16x64 & 16x16  & 32x16  & 16x32 & 64x4 & 4x64 & 1x1024 & 1024x1 \\ \hline
+Time (ms)  & 96.3 & 103.9 & 102.2 & 104.1 & 101.8   & 103.9   & 103.7  & 103.2  & 107.5 & 103.7  \\
+\hline
+\end{tabular}
+\end{table}
+\end{document}
