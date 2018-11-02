@@ -310,12 +310,29 @@ __global__ void nonsharedblur(uchar3* input, uchar3* output, int width, int heig
 	
 }
 
-__global__ void sharedblur(uchar3* input, uchar3* output, int width, int height) {
+void Labwork::labwork5_GPU() {
+    int pixelCount = inputImage->width * inputImage->height;	
+	dim3 blockSize = dim3(32,32);
+	dim3 gridSize = dim3((inputImage->width + blockSize.x -1) / blockSize.x, (inputImage->height + blockSize.y -1) / blockSize.y);
+	uchar3 *devInput,*devOutput;
+	outputImage = static_cast<char *>(malloc(pixelCount * sizeof(uchar3)));
+	cudaMalloc(&devInput, pixelCount * sizeof(uchar3));
+	cudaMalloc(&devOutput, pixelCount * sizeof(uchar3));
+	cudaMemcpy(devInput, inputImage->buffer, pixelCount*sizeof(uchar3), cudaMemcpyHostToDevice);
+	nonsharedblur<<<gridSize, blockSize>>>(devInput, devOutput,inputImage->width, inputImage->height);
+	cudaMemcpy(outputImage, devOutput, pixelCount*sizeof(uchar3), cudaMemcpyDeviceToHost);
+	cudaFree(devInput);
+	cudaFree(devOutput);
+}
+
+
+__global__ void sharedblur(uchar3* input, uchar3* output, int* kernel, int width, int height) {
 	int tidx = threadIdx.x + blockIdx.x * blockDim.x;
 	if (tidx >= width) return;
 	int tidy = threadIdx.y + blockIdx.y * blockDim.y;
 	if (tidy >= height) return;
 	int tid = tidx + tidy * width; 
+	/*
 	int kernel[] = { 0, 0, 1, 2, 1, 0, 0,  
 	 0, 3, 13, 22, 13, 3, 0,  
 	 1, 13, 59, 97, 59, 13, 1,  
@@ -323,6 +340,7 @@ __global__ void sharedblur(uchar3* input, uchar3* output, int width, int height)
 	 1, 13, 59, 97, 59, 13, 1,  
 	 0, 3, 13, 22, 13, 3, 0,
 	 0, 0, 1, 2, 1, 0, 0 };
+	*/
 	__shared__ int sharedkernel[49];
 	for (int i=0; i<49; i++){
 		sharedkernel[i] = kernel[i];
@@ -349,22 +367,15 @@ __global__ void sharedblur(uchar3* input, uchar3* output, int width, int height)
     	output[tid].z = output[tid].y = output[tid].x = sum;
 }
 
-void Labwork::labwork5_GPU() {
-    int pixelCount = inputImage->width * inputImage->height;	
-	dim3 blockSize = dim3(32,32);
-	dim3 gridSize = dim3((inputImage->width + blockSize.x -1) / blockSize.x, (inputImage->height + blockSize.y -1) / blockSize.y);
-	uchar3 *devInput,*devOutput;
-	outputImage = static_cast<char *>(malloc(pixelCount * sizeof(uchar3)));
-	cudaMalloc(&devInput, pixelCount * sizeof(uchar3));
-	cudaMalloc(&devOutput, pixelCount * sizeof(uchar3));
-	cudaMemcpy(devInput, inputImage->buffer, pixelCount*sizeof(uchar3), cudaMemcpyHostToDevice);
-	nonsharedblur<<<gridSize, blockSize>>>(devInput, devOutput,inputImage->width, inputImage->height);
-	cudaMemcpy(outputImage, devOutput, pixelCount*sizeof(uchar3), cudaMemcpyDeviceToHost);
-	cudaFree(devInput);
-	cudaFree(devOutput);
-}
-
 void Labwork::labwork5_GPU2() {
+	int kernel[] = { 0, 0, 1, 2, 1, 0, 0,  
+	 0, 3, 13, 22, 13, 3, 0,  
+	 1, 13, 59, 97, 59, 13, 1,  
+	 2, 22, 97, 159, 97, 22, 2,  
+	 1, 13, 59, 97, 59, 13, 1,  
+	 0, 3, 13, 22, 13, 3, 0,
+	 0, 0, 1, 2, 1, 0, 0 };
+	int *share;
     int pixelCount = inputImage->width * inputImage->height;	
 	dim3 blockSize = dim3(32,32);
 	dim3 gridSize = dim3((inputImage->width + blockSize.x -1) / blockSize.x, (inputImage->height + blockSize.y -1) / blockSize.y);
@@ -372,11 +383,14 @@ void Labwork::labwork5_GPU2() {
 	outputImage = static_cast<char *>(malloc(pixelCount * sizeof(uchar3)));
 	cudaMalloc(&devInput, pixelCount * sizeof(uchar3));
 	cudaMalloc(&devOutput, pixelCount * sizeof(uchar3));
+	cudaMalloc(&share, sizeof(kernel));
 	cudaMemcpy(devInput, inputImage->buffer, pixelCount*sizeof(uchar3), cudaMemcpyHostToDevice);
-	sharedblur<<<gridSize, blockSize>>>(devInput, devOutput,inputImage->width, inputImage->height);
+	cudaMemcpy(share, kernel, sizeof(kernel), cudaMemcpyHostToDevice);
+	sharedblur<<<gridSize, blockSize>>>(devInput, devOutput, share, inputImage->width, inputImage->height);
 	cudaMemcpy(outputImage, devOutput, pixelCount*sizeof(uchar3), cudaMemcpyDeviceToHost);
 	cudaFree(devInput);
 	cudaFree(devOutput);
+	cudaFree(share);
 }
 
 
