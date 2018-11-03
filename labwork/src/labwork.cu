@@ -200,6 +200,7 @@ __global__ void grayscale2d(uchar3* input, uchar3* output, int width, int height
     output[tid].x = (input[tid].x + input[tid].y + input[tid].z) / 3;
     output[tid].z = output[tid].y = output[tid].x; //load global mem too much -> slow
 }
+
 void Labwork::labwork4_GPU() {
 	int pixelCount = inputImage->width * inputImage->height;	
 	//int blockSize = 1024;
@@ -284,7 +285,7 @@ __global__ void nonsharedblur(uchar3* input, uchar3* output, int width, int heig
 	 1, 13, 59, 97, 59, 13, 1,  
 	 0, 3, 13, 22, 13, 3, 0,
 	 0, 0, 1, 2, 1, 0, 0 };
-	
+	//the kernel is stored in the register -> optimized
 	int sum = 0;
     	int c = 0;
 	for (int row = -3; row<3; row++){
@@ -384,6 +385,7 @@ void Labwork::labwork5_GPU2() {
     int pixelCount = inputImage->width * inputImage->height;	
 	dim3 blockSize = dim3(32,32);
 	dim3 gridSize = dim3((inputImage->width + blockSize.x -1) / blockSize.x, (inputImage->height + blockSize.y -1) / blockSize.y);
+
 	uchar3 *devInput,*devOutput;
 	outputImage = static_cast<char *>(malloc(pixelCount * sizeof(uchar3)));
 	cudaMalloc(&devInput, pixelCount * sizeof(uchar3));
@@ -398,9 +400,37 @@ void Labwork::labwork5_GPU2() {
 	cudaFree(share);
 }
 
+__global__ void threshold(uchar3* input, uchar3* output, int width, int height, int thresholdnumber) {
+    int tidx = threadIdx.x + blockIdx.x * blockDim.x;
+	if (tidx >= width) return;
+    int tidy = threadIdx.y + blockIdx.y * blockDim.y;
+	if (tidy >= height) return;
+    int tid = tidx + tidy * width; //gridDim.x*blockDim.x != width
+    unsigned char g = (input[tid].x + input[tid].y + input[tid].z) / 3;
+	if (g>= thresholdnumber){
+		g = 255;
+	}else{
+		g = 0;
+	}
+    output[tid].z = output[tid].y = output[tid].x = g; 
+}
 
 void Labwork::labwork6_GPU() {
-
+	int value = 0;
+	printf("Enter the thres value:");
+	scanf("%d", &value);
+	int pixelCount = inputImage->width * inputImage->height;	
+	dim3 blockSize = dim3(32,32);
+	dim3 gridSize = dim3((inputImage->width + blockSize.x -1) / blockSize.x, (inputImage->height + blockSize.y -1) / blockSize.y);
+	uchar3 *devInput,*devOutput;
+	outputImage = static_cast<char *>(malloc(pixelCount * 3));
+	cudaMalloc(&devInput, pixelCount * 3);
+	cudaMalloc(&devOutput, pixelCount * 3);
+	cudaMemcpy(devInput, inputImage->buffer, pixelCount*3, cudaMemcpyHostToDevice);
+	threshold<<<gridSize, blockSize>>>(devInput, devOutput,inputImage->width, inputImage->height, value);
+	cudaMemcpy(outputImage, devOutput, pixelCount*3, cudaMemcpyDeviceToHost);
+	cudaFree(devInput);
+	cudaFree(devOutput);	
 }
 
 void Labwork::labwork7_GPU() {
