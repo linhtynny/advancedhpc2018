@@ -829,8 +829,27 @@ __global__ void histogramFinal(histogram * input, int *output, int width, int he
 		//printf("%d ",output[i]);
 		}
 	}
-	
-	
+}
+
+__global__ void cdfCalculation(int *h, int pixelCount){ // calculate h[i] also 
+	int cdfMin = 0;
+	int cdfCumul = 0;
+	for (int i=0; i<256; i++){
+		if(cdfMin == 0) {cdfMin = h[i];}
+		cdfCumul += h[i];
+		h[i] = round((double) (cdfCumul - cdfMin) / (pixelCount - cdfMin) * 255.0);
+	}
+}
+
+__global__ void equalization(uchar3 *input, int *h, uchar3 *output, int width, int height){
+	int tidx = threadIdx.x + blockIdx.x * blockDim.x;
+	if (tidx >= width) return;
+	int tidy = threadIdx.y + blockIdx.y * blockDim.y;
+	if (tidy >= height) return;
+	int tid = tidx + tidy * width;
+
+	unsigned char g = h[input[tid].x];
+	output[tid].x = output[tid].y = output[tid].z = g;
 }
 
 void Labwork::labwork9_GPU() {
@@ -855,17 +874,31 @@ void Labwork::labwork9_GPU() {
 	grayscale2d<<<gridSize, blockSize>>>(devInput, tempOutput,inputImage->width, inputImage->height);
 	histogramLocal<<<inputImage->width,1>>>(tempOutput, histoLocal, inputImage->width, inputImage->height);
 	histogramFinal<<<1,256>>>(histoLocal, histoFinal, inputImage->width, inputImage->height);
+	cdfCalculation<<<1,1>>>(histoFinal, pixelCount);
+	
+	/*
 	cudaMemcpy(hostHisto, histoFinal, 256 * sizeof(int), cudaMemcpyDeviceToHost);
+	int cdfMin = 0;
+	int cdfCumul = 0;
+	for (int i=0; i<256; i++){
+		if(cdfMin == 0) {cdfMin = hostHisto[i];}
+		cdfCumul += hostHisto[i];
+		hostHisto[i] = round((double) (cdfCumul - cdfMin) / (pixelCount - cdfMin) * 255.0);
+	}
 	int sum = 0;
 	for (int i=0;i<256;i++) {
 		printf("%d ",hostHisto[i]);
 		sum += hostHisto[i];
 	}
 	printf("%d %d \n", pixelCount, sum);
+	*/
+	equalization<<<gridSize, blockSize>>>(tempOutput,histoFinal,devOutput,inputImage->width, inputImage->height);
+	cudaMemcpy(outputImage, devOutput, pixelCount*3, cudaMemcpyDeviceToHost);
 	cudaFree(devInput);
 	cudaFree(devOutput);
 	cudaFree(tempOutput);
 	cudaFree(histoLocal);
+	cudaFree(histoFinal);
 }
 
 void Labwork::labwork10_GPU() {
