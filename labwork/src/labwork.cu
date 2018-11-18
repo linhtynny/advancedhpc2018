@@ -901,6 +901,177 @@ void Labwork::labwork9_GPU() {
 	cudaFree(histoFinal);
 }
 
+__global__ void kuwahara(uchar3 *input, uchar3 *output, int width, int height, int windowSize){
+	int tidx = threadIdx.x + blockIdx.x * blockDim.x;
+	if (tidx >= width) return;
+	int tidy = threadIdx.y + blockIdx.y * blockDim.y;
+	if (tidy >= height) return;
+	int tid = tidx + tidy * width;
+	
+	int begin = 1-windowSize;
+	int end = windowSize-1;
+	
+	double window[4] = {0.0};
+	double windowSD[4] = {0.0};
+	int meanRGB[4][3] = {0};
+	int count[4] = {0};
+	
+	
+	for(int x= begin; x<= end; x++){
+		for(int y= begin; y<= end; y++){
+			int i = tid+x;
+			int j = tid+y;
+			if((i<0) or (i>=width)) continue;
+			if((j<0) or (j>=height)) continue;
+			int pos = j*width +i;
+			
+			int tempR = input[pos].x;
+			int tempG = input[pos].y;
+			int tempB = input[pos].z;
+			
+			int windowPos;
+			 if ((x <= 0) and (y <= 0)) {
+				 windowPos = 0; //top left
+				 //meanRGB[windowPos][0] += tempR;
+				 //meanRGB[windowPos][1] += tempG;
+				 //meanRGB[windowPos][2] += tempB;
+				 
+				 //window[windowPos] += max(tempR, max(tempG,tempB)); //V value in HSV
+				 //count[windowPos]++;
+			}
+			 if ((x >= 0) and (y <= 0)) {
+				 windowPos = 1; //top right
+				 //meanRGB[windowPos][0] += tempR;
+				 //meanRGB[windowPos][1] += tempG;
+				 //meanRGB[windowPos][2] += tempB;
+				 
+				 //window[windowPos] += max(tempR, max(tempG,tempB)); //V value in HSV
+				 //count[windowPos]++;
+			 }
+			 if ((x <= 0) and (y >= 0)) {
+				 windowPos = 2; //bottom left
+				 //meanRGB[windowPos][0] += tempR;
+				 //meanRGB[windowPos][1] += tempG;
+				 //meanRGB[windowPos][2] += tempB;
+				 
+				 //window[windowPos] += max(tempR, max(tempG,tempB)); //V value in HSV
+				 //count[windowPos]++;
+			 }
+			 if ((x >= 0) and (y >= 0)) {
+				 windowPos = 3; //bottom right
+				 //meanRGB[windowPos][0] += tempR;
+				 //meanRGB[windowPos][1] += tempG;
+				 //meanRGB[windowPos][2] += tempB;
+				 
+				 //window[windowPos] += max(tempR, max(tempG,tempB)); //V value in HSV
+				 //count[windowPos]++;
+			 }
+			 
+			 //int tempR = input[pos].x;
+			 //int tempG = input[pos].y;
+			 //int tempB = input[pos].z;
+			 meanRGB[windowPos][0] += tempR;
+			 meanRGB[windowPos][1] += tempG;
+			 meanRGB[windowPos][2] += tempB;
+			 
+			 window[windowPos] += max(tempR, max(tempG,tempB)); //V value in HSV
+             		 count[windowPos]++;
+		}
+	}
+		
+	for (int i = 0; i < 4; i++){
+        	window[i] /= count[i];
+        	for(int j = 0; j < 3; j++){ 
+			meanRGB[i][j] /= count[i];
+			//if (tid == 0) printf("%d ",meanRGB[i][j]);
+		}	
+	}	
+	
+	for(int x= begin; x<= end; x++){
+		for(int y= begin; y<= end; y++){
+			int i = tid+x;
+			int j = tid+y;
+			if((i<0) or (i>=width)) continue;
+			if((j<0) or (j>=height)) continue;
+			int pos = j*width +i;
+			
+			int tempR = input[pos].x;
+			int tempG = input[pos].y;
+			int tempB = input[pos].z;
+			 
+			int windowPos;
+			 if ((x <= 0) and (y <= 0)) {
+				 windowPos = 0; //top left
+				 //windowSD[windowPos] += pow((max(tempR, max(tempG,tempB)) - window[windowPos]),2.0);
+			 }
+			 if ((x >= 0) and (y <= 0)) {
+				 windowPos = 1; //top right
+				 //windowSD[windowPos] += pow((max(tempR, max(tempG,tempB)) - window[windowPos]),2.0);
+			 }
+			 if ((x <= 0) and (y >= 0)) {
+				 windowPos = 2; //bottom left
+				 //windowSD[windowPos] += pow((max(tempR, max(tempG,tempB)) - window[windowPos]),2.0);
+			 }
+			 if ((x >= 0) and (y >= 0)) {
+				 windowPos = 3; //bottom right
+				 //windowSD[windowPos] += pow((max(tempR, max(tempG,tempB)) - window[windowPos]),2.0);
+			 }
+			 
+			 //int tempR = input[pos].x;
+			 //int tempG = input[pos].y;
+			 //int tempB = input[pos].z;
+			 windowSD[windowPos] += pow((max(tempR, max(tempG,tempB)) - window[windowPos]),2.0);
+		}
+	}
+	
+	 for (int i = 0; i < 4; i ++){
+      windowSD[i] = sqrt(windowSD[i] / (count[i] ));
+      //if (tid == 100) printf("%lf ",windowSD[i]);
+	
+	}	
+	
+	double minSD = min(windowSD[0], min( windowSD[1], min(windowSD[2], windowSD[3])));
+	int windowPos;
+	if (minSD == windowSD[0]) windowPos=0;
+	if (minSD == windowSD[1]) windowPos=1;
+	if (minSD == windowSD[2]) windowPos=2;
+	if (minSD == windowSD[3]) windowPos=3;
+	
+	output[tid].x = meanRGB[windowPos][0];
+	output[tid].y = meanRGB[windowPos][1];
+	output[tid].z = meanRGB[windowPos][2];
+	
+	if (tid < 100) printf("%d %d %d \n", output[tid].x, output[tid].y, output[tid].z);
+	if (tid ==0) {
+         printf("input: %d, %d,%d %d \n", input[tid].x, input[tid].y, input[tid].z, windowSize);
+        printf("mean R: %d, %d,%d,%d \n", meanRGB[0][0], meanRGB[1][0], meanRGB[2][0],meanRGB[3][0]);
+         printf("mean G: %d, %d,%d,%d \n", meanRGB[0][1], meanRGB[1][1], meanRGB[2][1],meanRGB[3][1]);
+        printf("mean B: %d, %d,%d,%d \n", meanRGB[0][2], meanRGB[1][2], meanRGB[2][2],meanRGB[3][2]);
+         printf("window: %d, %d,%d,%d \n", window[0], window[1], window[2],window[3]);
+        printf("windowSD: %ld, %ld,%ld,%ld \n", windowSD[0],windowSD[1],windowSD[2],windowSD[3]);
+         printf("output: %d, %d,%d \n", output[tid].x, output[tid].y, output[tid].z);  
+     }
+}
+
+
 void Labwork::labwork10_GPU() {
+	int pixelCount = inputImage->width * inputImage->height;	
+	int windowSize = 3;
+	dim3 blockSize = dim3(32,32);
+	//int numBlock = pixelCount / blockSize;
+	dim3 gridSize = dim3((inputImage->width + blockSize.x -1) / blockSize.x, (inputImage->height + blockSize.y -1) / blockSize.y);
+	uchar3 *devInput,*devOutput;
+	
+	outputImage = static_cast<char *>(malloc(pixelCount * sizeof(uchar3)));
+	cudaMalloc(&devInput, pixelCount * sizeof(uchar3));
+	cudaMalloc(&devOutput, pixelCount * sizeof(uchar3));
+	
+	cudaMemcpy(devInput, inputImage->buffer, pixelCount*3, cudaMemcpyHostToDevice);
+	kuwahara<<<gridSize, blockSize>>>(devInput, devOutput,inputImage->width, inputImage->height, windowSize);
+	cudaMemcpy(outputImage, devOutput, pixelCount*3, cudaMemcpyDeviceToHost);
+	
+	cudaFree(devInput);
+	cudaFree(devOutput);
 
 }
+
